@@ -6,3 +6,5 @@ __pycache__/
 *.pyc
 development/app/Cued.exe
 development/installer/CuedSetup.exe
+macos/.build/
+macos/dist/

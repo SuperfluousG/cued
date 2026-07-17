@@ -1,0 +1,79 @@
+name: macOS
+
+on:
+  push:
+    branches:
+      - main
+      - feature/macos-v1
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: macos-14
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Record toolchain
+        run: |
+          uname -a
+          xcrun swift --version
+          xcodebuild -version
+
+      - name: Validate the shipped sample deck
+        run: python3 source/make-cued-deck/scripts/validate_cued.py app/sample.cued.json
+
+      - name: Test the native app
+        working-directory: macos
+        run: swift test
+
+      - name: Build the inspection app
+        run: bash macos/scripts/build-app.sh
+
+      - name: Check the skill return helper
+        run: >-
+          python3 source/make-cued-deck/scripts/open_in_cued.py
+          app/sample.cued.json
+          --app macos/dist/Cued.app
+          --dry-run
+
+      - name: Inspect the bundle
+        run: |
+          plutil -p macos/dist/Cued.app/Contents/Info.plist
+          codesign --verify --deep --strict --verbose=2 macos/dist/Cued.app
+          test -f macos/dist/Cued.app/Contents/Resources/Brand/openai.svg
+          test -f macos/dist/Cued.app/Contents/Resources/Brand/claude.svg
+          test -f macos/dist/Cued.app/Contents/Resources/CuedSupport/make-cued-deck/SKILL.md
+          test -f macos/dist/Cued.app/Contents/Resources/CuedSupport/make-cued-deck-claude.zip
+
+      - name: Launch the packaged app without build-machine resources
+        run: |
+          rm -rf macos/.build
+          capture() {
+            name="$1"
+            shift
+            open macos/dist/Cued.app --args "$@"
+            sleep 3
+            pgrep -x Cued
+            screencapture -x "macos/dist/Cued-${name}.png" || echo "Screenshot capture was unavailable on this runner."
+            killall Cued
+            sleep 1
+          }
+          capture landing --skip-onboarding
+          capture player --skip-onboarding "$PWD/app/sample.cued.json"
+          capture ghost --skip-onboarding "$PWD/app/sample.cued.json" --ghost
+
+      - name: Upload inspection package
+        uses: actions/upload-artifact@v7
+        with:
+          name: Cued-macOS-1.0.0-inspection
+          path: |
+            macos/dist/Cued-macOS-1.0.0-inspection.zip
+            macos/dist/SHA256SUMS.txt
+            macos/dist/Cued-*.png
+          if-no-files-found: error

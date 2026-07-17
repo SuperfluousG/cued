@@ -7,5 +7,12 @@
 *.yml text eol=lf
 *.exe binary
 *.ico binary
+*.icns binary
+*.png binary
+*.svg text eol=lf
+*.swift text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.plist text eol=lf
 *.skill binary
 *.zip binary

@@ -124,9 +124,9 @@ python scripts/validate_cued.py <deck.cued.json>
 
 Fix every validation error before delivery. Warnings identify density opportunities but do not invalidate the deck.
 
-After validation, attempt to open the deck when the session can control the Windows desktop.
+After validation, attempt to open the deck when the session can control the user's Windows or macOS desktop.
 
-For a native Windows session, run:
+For a native Windows or macOS session, run:
 
 ```text
 python scripts/open_in_cued.py <deck.cued.json>
@@ -134,12 +134,12 @@ python scripts/open_in_cued.py <deck.cued.json>
 
 For a sandboxed or Cowork session:
 
-1. Do not assume a Linux shell proves that the Windows app is unavailable.
-2. Check for authorised Windows shell, computer-use or desktop-control capabilities.
-3. If available, place the deck at a Windows-accessible path and launch `Cued.exe <windows-deck-path>` through that Windows capability.
+1. Do not assume a Linux shell proves that the user's desktop app is unavailable.
+2. Check for authorised Windows or macOS shell, computer-use or desktop-control capabilities.
+3. If available, place the deck at a host-accessible path and launch `Cued.exe <deck-path>` on Windows or `open -a Cued <deck-path>` on macOS through that capability.
 4. Confirm the Cued process or window before claiming it opened.
 
-If no Windows launch capability exists, return the valid file without treating that as a generation failure.
+If no host launch capability exists, return the valid file without treating that as a generation failure.
 
 Use exactly one compact delivery line:
 

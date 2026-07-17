@@ -1,8 +1,8 @@
 # Cued 1.0
 
-Cued is a playback-only Windows 11 speaking-card app. It keeps short prompts beside the camera during meetings, presentations, interviews, podcasts and talks.
+Cued is a playback-only speaking-card app. It keeps short prompts beside the camera during meetings, presentations, interviews, podcasts and talks. Cued 1.0 is released for Windows 11; a faithful native macOS 14 build is now available for inspection on the `feature/macos-v1` branch.
 
-## Install
+## Install on Windows
 
 1. Extract the Cued ZIP.
 2. Run `CuedSetup.exe`.
@@ -12,6 +12,17 @@ Cued is a playback-only Windows 11 speaking-card app. It keeps short prompts bes
 The setup program installs only for the current Windows account. It can also install the ChatGPT/Codex skill and reveal the Claude skill ZIP.
 
 Cued is not code-signed. Windows may warn when it is downloaded on another computer, although it does not always do so.
+
+## Inspect on macOS
+
+The Mac build targets macOS 14 on Apple Silicon, matching the current ChatGPT desktop requirement.
+
+1. Open the latest successful **macOS** run for `feature/macos-v1` in GitHub Actions.
+2. Download `Cued-macOS-1.0.0-inspection`.
+3. Extract `Cued-macOS-1.0.0-inspection.zip` and move `Cued.app` into Applications.
+4. Open Cued. First launch installs the ChatGPT skill for the current user and places the Claude upload ZIP in `~/Documents/Cued/Skills`.
+
+The inspection app is ad-hoc signed but not Developer ID-signed or notarised. It is not yet a public Mac release; Gatekeeper may require a trusted reviewer to use **Open** from Finder's context menu. See [the Mac inspection hand-off](docs/macos/04-inspection-handoff.md) for the parity and failure-path checklist.
 
 ## Use Cued
 
@@ -60,7 +71,7 @@ The skill:
 3. Asks genuine gaps one at a time.
 4. Agrees the running order and card count.
 5. Writes and validates the complete deck.
-6. Opens the deck in Cued when Windows desktop control is available.
+6. Opens the deck in Cued when authorised Windows or macOS desktop control is available.
 
 Say **make it now** to let the skill infer the running order and create the file immediately.
 
@@ -76,9 +87,13 @@ Every card contains exactly three heading blocks and one to three concise bullet
 - `packages/cued-openai-marketplace-1.0.0.zip` — OpenAI plugin marketplace package.
 - `openai-marketplace/` — unpacked OpenAI plugin marketplace.
 - `development/` — application, icon and installer source.
+- `macos/` — native SwiftUI/AppKit player, tests and inspection-package build.
+- `.github/workflows/macos.yml` — clean Apple Silicon build and launch verification.
 - `verification.md` — release checks and remaining limitations.
 
 ## Build from source
+
+### Windows
 
 On Windows 11 with .NET Framework 4.x installed:
 
@@ -89,6 +104,18 @@ powershell -NoProfile -ExecutionPolicy Bypass -File development\installer\build.
 ```
 
 The build uses only Windows and .NET Framework components; it adds no application dependencies.
+
+### macOS
+
+On macOS 14 or later with Xcode command-line tools:
+
+```bash
+cd macos
+swift test
+bash scripts/build-app.sh
+```
+
+The inspection app and ZIP are written to `macos/dist`. Public direct distribution additionally requires Developer ID signing and Apple notarisation.
 
 ## Deck contract
 
