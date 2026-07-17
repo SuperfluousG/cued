@@ -487,8 +487,7 @@ private struct BundleSVGImage: View {
     let name: String
 
     var body: some View {
-        if let url = Bundle.module.url(forResource: name, withExtension: "svg", subdirectory: "Resources"),
-           let image = NSImage(contentsOf: url) {
+        if let image = loadImage() {
             Image(nsImage: image)
                 .resizable()
                 .scaledToFit()
@@ -497,6 +496,22 @@ private struct BundleSVGImage: View {
                 .resizable()
                 .scaledToFit()
         }
+    }
+
+    private func loadImage() -> NSImage? {
+        // Packaged apps must resolve resources from their own bundle. SwiftPM's
+        // generated Bundle.module accessor also embeds a build-machine fallback,
+        // which can hide a broken app layout during CI and then trap on a clean Mac.
+        if let url = Bundle.main.url(forResource: name, withExtension: "svg", subdirectory: "Brand"),
+           let image = NSImage(contentsOf: url) {
+            return image
+        }
+
+        if let url = Bundle.module.url(forResource: name, withExtension: "svg", subdirectory: "Resources") {
+            return NSImage(contentsOf: url)
+        }
+
+        return nil
     }
 }
 

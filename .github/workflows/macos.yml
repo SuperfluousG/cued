@@ -46,11 +46,14 @@ jobs:
         run: |
           plutil -p macos/dist/Cued.app/Contents/Info.plist
           codesign --verify --deep --strict --verbose=2 macos/dist/Cued.app
+          test -f macos/dist/Cued.app/Contents/Resources/Brand/openai.svg
+          test -f macos/dist/Cued.app/Contents/Resources/Brand/claude.svg
           test -f macos/dist/Cued.app/Contents/Resources/CuedSupport/make-cued-deck/SKILL.md
           test -f macos/dist/Cued.app/Contents/Resources/CuedSupport/make-cued-deck-claude.zip
 
-      - name: Launch the packaged app
+      - name: Launch the packaged app without build-machine resources
         run: |
+          rm -rf macos/.build
           capture() {
             name="$1"
             shift

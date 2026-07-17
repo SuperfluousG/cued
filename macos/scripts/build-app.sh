@@ -26,6 +26,9 @@ if [[ -z "$RESOURCE_BUNDLE" ]]; then
 fi
 cp -R "$RESOURCE_BUNDLE" "$RESOURCES/"
 
+mkdir -p "$RESOURCES/Brand"
+cp "$MAC_ROOT/Sources/CuedMac/Resources/"*.svg "$RESOURCES/Brand/"
+
 mkdir -p "$RESOURCES/CuedSupport"
 cp -R "$REPO_ROOT/source/make-cued-deck" "$RESOURCES/CuedSupport/make-cued-deck"
 cp "$REPO_ROOT/packages/make-cued-deck-claude.zip" "$RESOURCES/CuedSupport/make-cued-deck-claude.zip"
