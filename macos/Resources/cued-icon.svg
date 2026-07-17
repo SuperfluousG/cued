@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Cued">
+  <rect x="8" y="8" width="1008" height="1008" rx="208" fill="#EE744F"/>
+  <path fill="#1E1E1E" d="M512 172C328 172 208 316 208 504v324l104-104 100 104 100-104 100 104 100-104 104 104V504c0-188-120-332-304-332Z"/>
+  <ellipse cx="396" cy="474" rx="44" ry="62" fill="#F8F7F4"/>
+  <ellipse cx="628" cy="474" rx="44" ry="62" fill="#F8F7F4"/>
+</svg>
+
