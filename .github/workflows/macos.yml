@@ -51,11 +51,19 @@ jobs:
 
       - name: Launch the packaged app
         run: |
-          open macos/dist/Cued.app --args --skip-onboarding "$PWD/app/sample.cued.json"
-          sleep 4
-          pgrep -x Cued
-          screencapture -x macos/dist/Cued-player.png || echo "Screenshot capture was unavailable on this runner."
-          killall Cued
+          capture() {
+            name="$1"
+            shift
+            open macos/dist/Cued.app --args "$@"
+            sleep 3
+            pgrep -x Cued
+            screencapture -x "macos/dist/Cued-${name}.png" || echo "Screenshot capture was unavailable on this runner."
+            killall Cued
+            sleep 1
+          }
+          capture landing --skip-onboarding
+          capture player --skip-onboarding "$PWD/app/sample.cued.json"
+          capture ghost --skip-onboarding "$PWD/app/sample.cued.json" --ghost
 
       - name: Upload inspection package
         uses: actions/upload-artifact@v7
@@ -64,5 +72,5 @@ jobs:
           path: |
             macos/dist/Cued-macOS-1.0.0-inspection.zip
             macos/dist/SHA256SUMS.txt
-            macos/dist/Cued-player.png
+            macos/dist/Cued-*.png
           if-no-files-found: error
