@@ -98,6 +98,10 @@ Decks are UTF-8 JSON using schema version 2. Validate a deck with:
 python source\make-cued-deck\scripts\validate_cued.py path\to\deck.cued.json
 ```
 
+## Sk-app architecture
+
+Cued is the reference implementation of a **sk-app**: a skill-backed application that gives an AI workflow a focused desktop GUI. The reusable technical framework — including two-way hand-offs, deep-link adapters, installation, security boundaries and a build verification matrix — is documented in [docs/sk-app-technical-overview.md](docs/sk-app-technical-overview.md).
+
 ## Official product guidance
 
 - [ChatGPT desktop commands and deep links](https://learn.chatgpt.com/docs/reference/commands)
