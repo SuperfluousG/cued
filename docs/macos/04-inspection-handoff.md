@@ -2,8 +2,6 @@
 title: Cued macOS v1.0 inspection hand-off
 status: READY FOR GREGG AND FABLE INSPECTION
 owner: Codex
-build_commit: 811ddb77e68627c7b9079f36db1f031984ad476a
-ci_run: 29581549638
 date: 2026-07-17
 ---
 
@@ -18,10 +16,10 @@ The native app compiles, tests, packages, launches and renders the landing, play
 ## Review build
 
 - Branch: `feature/macos-v1`
-- App build commit: `811ddb77e68627c7b9079f36db1f031984ad476a`
-- GitHub Actions run: [29581549638](https://github.com/SuperfluousG/cued/actions/runs/29581549638)
+- Draft PR: [SuperfluousG/cued#1](https://github.com/SuperfluousG/cued/pull/1)
+- Build: latest successful `build-and-test` run for the branch
 - Artifact: `Cued-macOS-1.0.0-inspection`
-- Inner ZIP SHA-256 for this run: `301AA7E4F0C0CD2EFA19FE82C397EAE83E3EAB9922DE83CD80A6B42F32BD15D5`
+- Integrity record: `SHA256SUMS.txt` enclosed in the workflow artifact
 - Automated screenshots: `Cued-landing.png`, `Cued-player.png`, `Cued-ghost.png`
 
 The ZIP is ad-hoc signed for integrity checking. It is not Developer ID-signed or notarised.
@@ -30,9 +28,10 @@ The ZIP is ad-hoc signed for integrity checking. It is not Developer ID-signed o
 
 1. Download the workflow artifact from the linked run.
 2. Extract the artifact, then extract `Cued-macOS-1.0.0-inspection.zip`.
-3. Move `Cued.app` into Applications.
-4. Open Cued from Finder. Because this is a trusted inspection build rather than a notarised release, use Finder's **Open** context action if Gatekeeper asks for confirmation.
-5. First launch should report that the ChatGPT skill was installed and offer to reveal the Claude ZIP.
+3. Open the enclosed `START HERE.md`; the same folder contains `Cued.app` and a working `sample.cued.json` deck.
+4. Move `Cued.app` into Applications.
+5. Open Cued from Finder. Because this is a trusted inspection build rather than a notarised release, use Finder's **Open** context action if Gatekeeper asks for confirmation.
+6. First launch should report that the ChatGPT skill was installed and offer to reveal the Claude ZIP.
 
 Do not treat Gatekeeper workarounds as an acceptable public installation journey. Signing and notarisation are a separate release gate.
 
@@ -49,7 +48,7 @@ Do not treat Gatekeeper workarounds as an acceptable public installation journey
 
 ### Playback
 
-- Open `app/sample.cued.json` or another version-2 deck.
+- Open the enclosed `sample.cued.json` or another version-2 deck.
 - No text scroll appears inside a card.
 - The two underlying card edges read as cards, not a clipboard.
 - The next-card box uses the card background and white text.

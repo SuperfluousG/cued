@@ -32,7 +32,7 @@ This produces:
 - `macos/dist/Cued-macOS-1.0.0-inspection.zip`
 - `macos/dist/SHA256SUMS.txt`
 
-The build is Apple Silicon-only and ad-hoc signed. It verifies its bundle, signature, executable architecture and bundled skill files before packaging.
+The inspection ZIP contains `Cued.app`, the working sample deck and a plain-English `START HERE.md`. The build is Apple Silicon-only and ad-hoc signed. It verifies its bundle, signature, executable architecture and bundled skill files before packaging.
 
 ## Run during development
 

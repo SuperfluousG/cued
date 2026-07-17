@@ -6,6 +6,7 @@ MAC_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$MAC_ROOT/.." && pwd)"
 DIST="$MAC_ROOT/dist"
 APP="$DIST/Cued.app"
+HANDOFF="$DIST/Cued-macOS-1.0.0-inspection"
 CONTENTS="$APP/Contents"
 RESOURCES="$CONTENTS/Resources"
 
@@ -49,6 +50,10 @@ if ! grep -q "arm64" "$DIST/binary.txt"; then
     exit 1
 fi
 
-ditto -c -k --sequesterRsrc --keepParent "$APP" "$DIST/Cued-macOS-1.0.0-inspection.zip"
+mkdir -p "$HANDOFF"
+cp -R "$APP" "$HANDOFF/Cued.app"
+cp "$REPO_ROOT/app/sample.cued.json" "$HANDOFF/sample.cued.json"
+cp "$MAC_ROOT/START HERE.md" "$HANDOFF/START HERE.md"
+ditto -c -k --sequesterRsrc --keepParent "$HANDOFF" "$DIST/Cued-macOS-1.0.0-inspection.zip"
 shasum -a 256 "$DIST/Cued-macOS-1.0.0-inspection.zip" > "$DIST/SHA256SUMS.txt"
 echo "Built $APP"
