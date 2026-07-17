@@ -1,0 +1,20 @@
+{
+  "name": "cued",
+  "interface": {
+    "displayName": "Cued"
+  },
+  "plugins": [
+    {
+      "name": "cued",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cued"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

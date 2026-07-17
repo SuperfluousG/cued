@@ -1,0 +1,20 @@
+{
+  "name": "cued",
+  "version": "1.0.0+codex.20260717101647",
+  "description": "Prepare concise, validated speaking-card decks for the Cued Windows app.",
+  "author": {
+    "name": "Gregg"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Cued",
+    "shortDescription": "Make concise speaking cards for Cued.",
+    "longDescription": "Turn meeting, presentation, interview and podcast preparation into validated Cued speaking-card decks.",
+    "developerName": "Gregg",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": "Prepare a Cued deck for my next conversation."
+  }
+}

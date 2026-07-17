@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cued Deck Maker"
+  short_description: "Prepare concise Cued speaking cards"
+  default_prompt: "Use $make-cued-deck to prepare a Cued deck for my upcoming conversation."

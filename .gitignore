@@ -1,0 +1,8 @@
+*.pdb
+*.tmp
+*.user
+*.suo
+__pycache__/
+*.pyc
+development/app/Cued.exe
+development/installer/CuedSetup.exe

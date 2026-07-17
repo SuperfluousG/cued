@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 2,
+  "title": "Product direction conversation",
+  "cards": [
+    {
+      "id": "set-the-frame",
+      "title": "Set the frame",
+      "blocks": [
+        {
+          "heading": "Make the outcome concrete",
+          "bullets": [
+            "This is a decision conversation",
+            "Name what must change afterwards"
+          ]
+        },
+        {
+          "heading": "Questions to ask",
+          "bullets": [
+            "What must be true when we finish?"
+          ]
+        },
+        {
+          "heading": "Listen for",
+          "bullets": [
+            "A decision rather than general feedback"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "surface-the-need",
+      "title": "Surface the real need",
+      "blocks": [
+        {
+          "heading": "Find the actual problem",
+          "bullets": [
+            "The visible request may be misleading",
+            "Look for consequences rather than preferences"
+          ]
+        },
+        {
+          "heading": "Questions to ask",
+          "bullets": [
+            "Where does the current approach break?",
+            "Who feels that failure most?"
+          ]
+        },
+        {
+          "heading": "Listen for",
+          "bullets": [
+            "A real example with consequences"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-the-decision",
+      "title": "Test the decision",
+      "blocks": [
+        {
+          "heading": "Prefer evidence over agreement",
+          "bullets": [
+            "A small test beats broad consensus",
+            "Keep the test easy to observe"
+          ]
+        },
+        {
+          "heading": "Questions to ask",
+          "bullets": [
+            "What evidence would change our direction?"
+          ]
+        },
+        {
+          "heading": "Listen for",
+          "bullets": [
+            "A measurable result and timescale"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "close-with-ownership",
+      "title": "Close with ownership",
+      "blocks": [
+        {
+          "heading": "Leave with one commitment",
+          "bullets": [
+            "State the next step plainly",
+            "Check that everyone heard it"
+          ]
+        },
+        {
+          "heading": "Questions to ask",
+          "bullets": [
+            "Who owns it and by when?"
+          ]
+        },
+        {
+          "heading": "Listen for",
+          "bullets": [
+            "A named owner and date"
+          ]
+        }
+      ]
+    }
+  ]
+}

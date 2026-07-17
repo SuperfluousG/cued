@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "title": "Product direction meeting",
+  "cards": [
+    {
+      "id": "set-the-frame",
+      "title": "Set the frame",
+      "blocks": [
+        {
+          "heading": "Decision",
+          "bullets": [
+            "Name the decision needed",
+            "Keep the outcome concrete"
+          ]
+        },
+        {
+          "heading": "Question",
+          "bullets": [
+            "What must be true afterwards?"
+          ]
+        },
+        {
+          "heading": "Watch for",
+          "bullets": [
+            "General feedback replacing a decision"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-the-choice",
+      "title": "Test the choice",
+      "blocks": [
+        {
+          "heading": "Evidence",
+          "bullets": [
+            "Use the strongest real example",
+            "Separate fact from assumption"
+          ]
+        },
+        {
+          "heading": "Challenge",
+          "bullets": [
+            "What would change our minds?"
+          ]
+        },
+        {
+          "heading": "Close",
+          "bullets": [
+            "Name owner and next test",
+            "Confirm when we reconvene"
+          ]
+        }
+      ]
+    }
+  ]
+}
