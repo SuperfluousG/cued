@@ -27,6 +27,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         store.prepareSupportFiles()
+        let arguments = CommandLine.arguments
+        if arguments.contains("--skip-onboarding") {
+            store.isOnboardingVisible = false
+        }
 
         let panel = CuedPanel(
             contentRect: NSRect(x: 0, y: 0, width: 520, height: 790),
@@ -61,12 +65,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Task { @MainActor in store?.advance() }
         }
 
-        for argument in CommandLine.arguments.dropFirst() where !argument.hasPrefix("-") {
+        for argument in arguments.dropFirst() where !argument.hasPrefix("-") {
             let url = URL(fileURLWithPath: argument)
             if FileManager.default.fileExists(atPath: url.path) {
                 store.loadDeck(at: url)
                 break
             }
+        }
+        if arguments.contains("--ghost") && store.deck != nil {
+            store.isGhostMode = true
         }
     }
 

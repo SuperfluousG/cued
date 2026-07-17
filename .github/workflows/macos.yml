@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Record toolchain
         run: |
@@ -49,12 +49,20 @@ jobs:
           test -f macos/dist/Cued.app/Contents/Resources/CuedSupport/make-cued-deck/SKILL.md
           test -f macos/dist/Cued.app/Contents/Resources/CuedSupport/make-cued-deck-claude.zip
 
+      - name: Launch the packaged app
+        run: |
+          open macos/dist/Cued.app --args --skip-onboarding "$PWD/app/sample.cued.json"
+          sleep 4
+          pgrep -x Cued
+          screencapture -x macos/dist/Cued-player.png || echo "Screenshot capture was unavailable on this runner."
+          killall Cued
+
       - name: Upload inspection package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Cued-macOS-1.0.0-inspection
           path: |
             macos/dist/Cued-macOS-1.0.0-inspection.zip
             macos/dist/SHA256SUMS.txt
+            macos/dist/Cued-player.png
           if-no-files-found: error
-

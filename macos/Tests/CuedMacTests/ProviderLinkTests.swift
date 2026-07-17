@@ -42,4 +42,3 @@ final class ProviderLinkTests: XCTestCase {
         components.queryItems?.first(where: { $0.name == name })?.value
     }
 }
-

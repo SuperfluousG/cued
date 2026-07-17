@@ -148,4 +148,3 @@ enum DeckValidator {
         return wordPattern.numberOfMatches(in: value, range: range)
     }
 }
-

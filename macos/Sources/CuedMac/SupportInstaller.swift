@@ -64,4 +64,3 @@ enum SupportInstaller {
         return SupportStatus(openAISkillInstalled: true, claudePackageReady: true, error: nil)
     }
 }
-

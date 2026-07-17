@@ -29,7 +29,7 @@ final class GlobalHotKey {
         )
         guard result == noErr else { return nil }
 
-        var identifier = EventHotKeyID(signature: fourCharacterCode("CUED"), id: 1)
+        let identifier = EventHotKeyID(signature: fourCharacterCode("CUED"), id: 1)
         let registration = RegisterEventHotKey(
             UInt32(kVK_Space),
             UInt32(controlKey),
@@ -53,4 +53,3 @@ final class GlobalHotKey {
         value.utf8.reduce(0) { ($0 << 8) + OSType($1) }
     }
 }
-

@@ -130,4 +130,3 @@ final class CuedStore: ObservableObject {
         NSWorkspace.shared.activateFileViewerSelecting([url])
     }
 }
-

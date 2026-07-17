@@ -52,4 +52,3 @@ fi
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$DIST/Cued-macOS-1.0.0-inspection.zip"
 shasum -a 256 "$DIST/Cued-macOS-1.0.0-inspection.zip" > "$DIST/SHA256SUMS.txt"
 echo "Built $APP"
-

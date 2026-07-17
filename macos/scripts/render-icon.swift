@@ -42,4 +42,3 @@ guard let data = bitmap.representation(using: .png, properties: [:]) else {
     exit(1)
 }
 try data.write(to: output, options: .atomic)
-

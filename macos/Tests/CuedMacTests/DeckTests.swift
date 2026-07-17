@@ -58,8 +58,8 @@ final class DeckTests: XCTestCase {
     )
 }
 
-@MainActor
 final class StoreTests: XCTestCase {
+    @MainActor
     func testAdvanceFinishesToLanding() throws {
         let store = CuedStore()
         let data = try JSONEncoder().encode(DeckTests.validDeck)
@@ -75,4 +75,3 @@ final class StoreTests: XCTestCase {
         XCTAssertFalse(store.isGhostMode)
     }
 }
-
