@@ -1,7 +1,7 @@
 # Recipient launch crash: SwiftPM resource lookup
 
 Date: 2026-07-17  
-Status: fix implemented; replacement inspection build pending
+Status: fix verified in clean-resource CI; recipient retest pending
 
 ## Observed failure
 
@@ -26,3 +26,11 @@ The GitHub runner still contained that build directory, so the packaged app foun
 
 Do not resend the Mac build until the clean-resource workflow passes, the replacement ZIP contains the fixed bundle, and its checksum has been recorded. Recipient launch remains the decisive external check.
 
+## Verification result
+
+- The clean-resource workflow passed in [GitHub Actions run 29587338730](https://github.com/SuperfluousG/cued/actions/runs/29587338730).
+- The workflow deleted `macos/.build` before exercising the packaged landing, player and Ghost states.
+- The downloaded replacement ZIP contains both provider SVGs under `Cued.app/Contents/Resources/Brand`.
+- Replacement ZIP SHA-256: `E616530E592754D93ECEAA46B0F1F48F142123A8842922DC120D406E8D7493D8`.
+
+The engineering defect is corrected. A fresh launch on the reporting Mac is still required before product inspection resumes.
