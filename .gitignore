@@ -6,3 +6,7 @@ __pycache__/
 *.pyc
 development/app/Cued.exe
 development/installer/CuedSetup.exe
+test-output/
+macos/.build/
+macos/out/
+macos/Sources/CuedCore/Resources/unicode-rules.json

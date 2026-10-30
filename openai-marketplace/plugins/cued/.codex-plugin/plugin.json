@@ -1,7 +1,7 @@
 {
   "name": "cued",
-  "version": "1.0.0+codex.20260717101647",
-  "description": "Prepare concise, validated speaking-card decks for the Cued Windows app.",
+  "version": "1.1.0-rc.1",
+  "description": "Prepare concise, validated speaking-card decks for the Cued desktop player.",
   "author": {
     "name": "Gregg"
   },

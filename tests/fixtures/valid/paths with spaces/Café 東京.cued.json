@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "title": "Café — 東京 🙂",
+  "cards": [
+    {
+      "id": "first-card",
+      "title": "First card",
+      "blocks": [
+        {
+          "heading": "One",
+          "bullets": [
+            "Café déjà vu — 東京 🙂",
+            "Keep don't and well-being together"
+          ]
+        },
+        {
+          "heading": "Two",
+          "bullets": [
+            "Two"
+          ]
+        },
+        {
+          "heading": "Three",
+          "bullets": [
+            "Three"
+          ]
+        }
+      ]
+    }
+  ]
+}

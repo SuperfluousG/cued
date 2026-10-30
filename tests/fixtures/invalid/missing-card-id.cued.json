@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 2,
+  "title": "Small deck",
+  "cards": [
+    {
+      "title": "First card",
+      "blocks": [
+        {
+          "heading": "One",
+          "bullets": [
+            "One"
+          ]
+        },
+        {
+          "heading": "Two",
+          "bullets": [
+            "Two"
+          ]
+        },
+        {
+          "heading": "Three",
+          "bullets": [
+            "Three"
+          ]
+        }
+      ]
+    }
+  ]
+}

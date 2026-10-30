@@ -1,110 +1,48 @@
-# Cued 1.0
+# Cued 1.1.0 release candidate
 
-Cued is a playback-only Windows 11 speaking-card app. It keeps short prompts beside the camera during meetings, presentations, interviews, podcasts and talks.
+Cued is a small, offline speaking-card player for use beside your camera. The Windows WPF app is retained; the Mac player uses native Swift and AppKit. Both read the same schema-version-2 `.cued.json` decks.
 
-## Install
+See [QUICK-START.md](QUICK-START.md) for installation, playback and AI deck creation, and [RELEASE-NOTES.md](RELEASE-NOTES.md) for changes. Mac archives labelled `unnotarized-test` are test builds, not a normal signed public release. Build, automated tests, interactive checks and owner acceptance are separate results.
 
-1. Extract the Cued ZIP.
-2. Run `CuedSetup.exe`.
-3. Keep the suggested `%USERPROFILE%\Cued` folder or choose another location.
-4. Choose Desktop and Start-menu shortcuts, then select **Install Cued**.
+## Build and check Windows
 
-The setup program installs only for the current Windows account. It can also install the ChatGPT/Codex skill and reveal the Claude skill ZIP.
-
-Cued is not code-signed. Windows may warn when it is downloaded on another computer, although it does not always do so.
-
-## Use Cued
-
-1. Open Cued.
-2. Select **Open** and choose a `.cued.json` deck, or drag a deck onto the window.
-3. Keep the card near the camera while speaking.
-4. Press `Space` or select the next-card title to advance.
-5. Use **Back** or the left arrow to revisit a card.
-6. Select the ghost to reduce the card surface while keeping the text and controls visible.
-
-Finishing a deck returns to the landing screen. Cued does not retain an active session.
-
-## Create with ChatGPT
-
-Leave **Install the Cued skill for ChatGPT and Codex** selected during setup, then restart ChatGPT if it was already open.
-
-Select the OpenAI symbol in Cued. The prepared prompt asks ChatGPT to:
-
-- switch the task to Work mode;
-- use GPT-5.6 Terra;
-- run `$make-cued-deck`;
-- save the finished deck in Cued's `Decks` folder;
-- open the validated deck in Cued.
-
-OpenAI's documented `codex://` chat link can prefill a prompt and workspace, but it cannot force Work mode, select a model or send the prompt. If ChatGPT offers to move the task into Work, accept it and confirm GPT-5.6 Terra in the composer. Terra is the balanced GPT-5.6 tier; Luna is intended for lighter, higher-volume work.
-
-If the first hand-off times out, select the OpenAI symbol again or open `Open ChatGPT with Cued.url` from the installed Cued folder.
-
-## Create with Claude
-
-During setup, select **Show the Claude skill ZIP when setup finishes**. In Claude:
-
-1. Open **Customize → Skills → + Create skill**.
-2. Select **Upload a skill**.
-3. Choose `Skills\make-cued-deck-claude.zip` without unpacking it.
-4. Enable Cued.
-
-Attaching the ZIP to a normal Claude or Cowork conversation does not install it. After the one-time upload, the Claude symbol in Cued starts a prepared Cowork task.
-
-## What the skill does
-
-The skill:
-
-1. Checks relevant supplied or connected context.
-2. Confirms its understanding of the event.
-3. Asks genuine gaps one at a time.
-4. Agrees the running order and card count.
-5. Writes and validates the complete deck.
-6. Opens the deck in Cued when Windows desktop control is available.
-
-Say **make it now** to let the skill infer the running order and create the file immediately.
-
-Every card contains exactly three heading blocks and one to three concise bullets under each heading. Cards contain no timing or slide references and never exceed nine bullets.
-
-## Included files
-
-- `CuedSetup.exe` — Windows setup program.
-- `app/Cued.exe` — playback application with the Cued taskbar icon.
-- `app/sample.cued.json` — working four-card example.
-- `source/make-cued-deck/` — portable skill source.
-- `packages/make-cued-deck-claude.zip` — Claude upload package.
-- `packages/cued-openai-marketplace-1.0.0.zip` — OpenAI plugin marketplace package.
-- `openai-marketplace/` — unpacked OpenAI plugin marketplace.
-- `development/` — application, icon and installer source.
-- `verification.md` — release checks and remaining limitations.
-
-## Build from source
-
-On Windows 11 with .NET Framework 4.x installed:
+Windows with .NET Framework 4.x:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File development\icon\build-icon.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File development\app\build.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File development\installer\build.ps1
+python -B tests/test_contract.py --output test-output/python-fixtures.json
+powershell -NoProfile -ExecutionPolicy Bypass -File tests\windows\run-fixtures.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tests\windows\test-player.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File development\package.ps1 -OutputDirectory C:\path\to\new-candidate
 ```
 
-The build uses only Windows and .NET Framework components; it adds no application dependencies.
+The final command requires a new output directory and preserves prior candidates. Builders write only their development executables; the root `CuedSetup.exe` and `app/Cued.exe` remain retained 1.0 binaries, not the new release. Run the candidate produced by the packager.
 
-## Deck contract
+## Build and check Mac
 
-Decks are UTF-8 JSON using schema version 2. Validate a deck with:
+On a real Mac with Xcode command-line tools and Swift 5.9 or later:
 
-```powershell
-python source\make-cued-deck\scripts\validate_cued.py path\to\deck.cued.json
+```sh
+bash macos/scripts/test.sh
+bash macos/scripts/build.sh "$(uname -m)"
+bash macos/scripts/package.sh "$(uname -m)"
 ```
 
-## Sk-app architecture
+Use the Mac guide and workflow for exact arguments and artifact locations. The support target is macOS 13. CI must run separately on Intel and Apple silicon; a successful source check on Windows is not Mac execution evidence. End users do not need developer tools for packaged playback.
 
-Cued is the reference implementation of a **sk-app**: a skill-backed application that gives an AI workflow a focused desktop GUI. The reusable technical framework — including two-way hand-offs, deep-link adapters, installation, security boundaries and a build verification matrix — is documented in [docs/sk-app-technical-overview.md](docs/sk-app-technical-overview.md).
+## Shared deck contract
 
-## Official product guidance
+[Contract](source/make-cued-deck/references/cued-contract.md), [schema](source/make-cued-deck/references/cued.schema.json) and [shared fixtures](tests/fixtures/manifest.json) define validation. Validate a deck with:
 
-- [ChatGPT desktop commands and deep links](https://learn.chatgpt.com/docs/reference/commands)
-- [Codex models](https://learn.chatgpt.com/docs/models)
-- [Claude custom Skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)
-- [Claude Desktop links](https://support.claude.com/en/articles/14729294-open-claude-desktop-with-a-link)
+```text
+python -B source/make-cued-deck/scripts/validate_cued.py path/to/deck.cued.json
+```
+
+AI creation is a user-initiated skill handoff with an editable/copyable prompt. It does not require any particular model, automatically submit a message or install a skill. The skill source is packaged identically for both OSes; only the local destination and launch command vary.
+
+## Retained history
+
+[verification.md](verification.md) records the 1.0 release checks from July 2026. It is historical evidence, not acceptance of 1.1. The [sk-app architecture note](docs/sk-app-technical-overview.md) is also historical and may describe provider links or model suggestions that this release has removed.
+
+Ownership and licence terms are unchanged.

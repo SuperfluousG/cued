@@ -39,6 +39,8 @@ def app_candidates(explicit: str | None) -> list[Path]:
     if program_files:
         values.append(str(Path(program_files) / "Cued" / "Cued.exe"))
 
+    if sys.platform == "darwin":
+        values.extend([str(Path.home() / "Applications" / "Cued.app"), "/Applications/Cued.app"])
     values.append(str(Path.cwd() / "Cued.exe"))
 
     seen: set[str] = set()
@@ -55,7 +57,7 @@ def app_candidates(explicit: str | None) -> list[Path]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Open a validated deck in Cued.")
     parser.add_argument("deck", type=Path)
-    parser.add_argument("--app", help="Explicit path to Cued.exe")
+    parser.add_argument("--app", help="Explicit path to Cued.exe or Cued.app")
     parser.add_argument("--dry-run", action="store_true", help="Validate and print the launch command")
     args = parser.parse_args()
 
@@ -68,18 +70,18 @@ def main() -> int:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    app = next((candidate for candidate in app_candidates(args.app) if candidate.is_file()), None)
+    app = next((candidate for candidate in app_candidates(args.app) if candidate.is_file() or (sys.platform == "darwin" and candidate.suffix == ".app" and candidate.is_dir())), None)
     if app is None:
         print(f"Cued was not found. The validated deck is ready at: {deck}")
         return 2
 
-    command = [str(app), str(deck)]
+    command = ["/usr/bin/open", "-a", str(app), str(deck)] if sys.platform == "darwin" else [str(app), str(deck)]
     if args.dry_run:
         print("READY:", subprocess.list2cmdline(command))
         return 0
 
     subprocess.Popen(command, close_fds=True)
-    print(f"OPENED: {deck}")
+    print(f"LAUNCH REQUESTED: {deck}; verify the Cued window before reporting it opened")
     return 0
 
 

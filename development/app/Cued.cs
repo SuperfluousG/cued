@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,8 +21,8 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("Cued")]
 [assembly: AssemblyProduct("Cued")]
 [assembly: AssemblyDescription("Playback-only speaking cards for Windows")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 namespace Cued
 {
@@ -85,6 +85,9 @@ namespace Cued
         private Border _edgeTwo;
         private Grid _cuePanel;
         private StackPanel _sectionsPanel;
+        private ScrollViewer _cueScroll;
+        private int _transitionGeneration;
+        private readonly PlayerSettings _preferences;
         private TextBlock _cardTitle;
         private TextBlock _positionText;
         private Button _dropButton;
@@ -116,6 +119,9 @@ namespace Cued
         public CueDeckWindow(string[] startupArgs)
         {
             _startupArgs = startupArgs ?? new string[0];
+            _preferences = PlayerSettings.Load();
+            _cueTextSize = _preferences.TextSize;
+            _ghostTextOpacity = _preferences.GhostOpacity;
             Title = "Cued";
             Width = 520;
             Height = 790;
@@ -219,6 +225,10 @@ namespace Cued
             controls.HorizontalAlignment = HorizontalAlignment.Right;
             controls.VerticalAlignment = VerticalAlignment.Center;
 
+            Button open = CreateChromeButton("↗", "Open deck (Ctrl+O)");
+            open.Click += delegate { ChooseDeck(); };
+            controls.Children.Add(open);
+
             Button minimise = CreateChromeButton("—", "Minimise");
             minimise.Click += delegate { WindowState = WindowState.Minimized; };
             controls.Children.Add(minimise);
@@ -278,9 +288,9 @@ namespace Cued
             _landing = new Grid();
             _landing.HorizontalAlignment = HorizontalAlignment.Center;
             _landing.VerticalAlignment = VerticalAlignment.Center;
-            _landing.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(190) });
+            _landing.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(170) });
             _landing.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2) });
-            _landing.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(230) });
+            _landing.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(210) });
 
             _openButton = CreateLandingOpenButton();
             _openButton.Click += delegate { ChooseDeck(); };
@@ -445,9 +455,13 @@ namespace Cued
 
             _sectionsPanel = new StackPanel();
             _sectionsPanel.Margin = new Thickness(8, 0, 14, 0);
-            Grid.SetRow(_sectionsPanel, 1);
-            Grid.SetColumn(_sectionsPanel, 0);
-            _cuePanel.Children.Add(_sectionsPanel);
+            _cueScroll = new ScrollViewer();
+            _cueScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            _cueScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            _cueScroll.Content = _sectionsPanel;
+            Grid.SetRow(_cueScroll, 1);
+            Grid.SetColumn(_cueScroll, 0);
+            _cuePanel.Children.Add(_cueScroll);
 
             Grid actionRow = new Grid();
             actionRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(94) });
@@ -554,7 +568,7 @@ namespace Cued
             _reducedMotionCheck = new CheckBox();
             _reducedMotionCheck.Content = "Reduced motion";
             _reducedMotionCheck.Foreground = ForegroundBrush;
-            _reducedMotionCheck.IsChecked = false;
+            _reducedMotionCheck.IsChecked = _preferences.ReducedMotion;
             content.Children.Add(_reducedMotionCheck);
 
             TextBlock shortcut = new TextBlock();
@@ -585,6 +599,7 @@ namespace Cued
             button.BorderBrush = Brushes.Transparent;
             button.Foreground = MutedBrush;
             button.ToolTip = tooltip;
+            System.Windows.Automation.AutomationProperties.SetName(button, tooltip);
             button.Margin = new Thickness(1, 0, 1, 0);
             return button;
         }
@@ -646,61 +661,43 @@ namespace Cued
         private void OpenProvider(bool useClaude)
         {
             string appFolder = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar);
-            string decksFolder = System.IO.Path.Combine(appFolder, "Decks");
-            Directory.CreateDirectory(decksFolder);
-
-            string link = BuildProviderLink(useClaude, appFolder);
-            string provider = useClaude ? "Claude Cowork" : "ChatGPT";
-
-            try
+            string provider = useClaude ? "Claude" : "ChatGPT / Codex";
+            Window dialog = new Window { Title = "Create a Cued deck", Owner = this, Width = 540, Height = 410,
+                MinWidth = 420, MinHeight = 340, WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Background = WindowBrush, Foreground = ForegroundBrush, FontFamily = FontFamily };
+            Grid layout = new Grid { Margin = new Thickness(20) };
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            layout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            TextBlock help = new TextBlock { Text = "Install the included make-cued-deck skill in your AI tool first. Copy this prompt into your chosen tool, or try the desktop link. Review and send it there. A link does not install a skill, select a model or send a message.",
+                TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 14), FontSize = 14 };
+            layout.Children.Add(help);
+            TextBox prompt = new TextBox { Text = CuedShared.ProviderHandoff.Prompt(appFolder), IsReadOnly = true,
+                TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Background = SurfaceBrush, Foreground = ForegroundBrush, Padding = new Thickness(10), FontSize = 14 };
+            Grid.SetRow(prompt, 1); layout.Children.Add(prompt);
+            StackPanel buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 14, 0, 0) };
+            Button copy = new Button { Content = "Copy prompt", Padding = new Thickness(14, 8, 14, 8), Margin = new Thickness(0, 0, 10, 0) };
+            copy.Click += delegate { try { Clipboard.SetText(prompt.Text); copy.Content = "Copied"; } catch { prompt.SelectAll(); prompt.Focus(); } };
+            buttons.Children.Add(copy);
+            Button launch = new Button { Content = "Open " + provider, Padding = new Thickness(14, 8, 14, 8) };
+            launch.Click += delegate
             {
-                Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    this,
-                    "Cued could not open " + provider + ". Make sure its Windows desktop app is installed.\n\n" + ex.Message,
-                    "Cued",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-            }
+                try { Process.Start(new ProcessStartInfo(BuildProviderLink(useClaude, appFolder)) { UseShellExecute = true }); }
+                catch { MessageBox.Show(dialog, "The desktop link is unavailable. Copy the prompt and paste it into your chosen AI tool.", "Cued"); }
+            };
+            buttons.Children.Add(launch); Grid.SetRow(buttons, 2); layout.Children.Add(buttons);
+            dialog.Content = layout; dialog.ShowDialog();
         }
 
         private static string BuildProviderLink(bool useClaude, string appFolder)
-        {
-            string decksFolder = System.IO.Path.Combine(appFolder, "Decks");
-            if (useClaude)
-            {
-                string prompt =
-                    "Use the installed make-cued-deck skill to prepare a Cued deck. " +
-                    "Use relevant context already available; otherwise ask what I am preparing for. " +
-                    "Save the validated .cued.json in " + decksFolder + ". " +
-                    "When finished, use authorised Windows desktop control to open " +
-                    System.IO.Path.Combine(appFolder, "Cued.exe") + " with the deck path. " +
-                    "If desktop control is unavailable, return the file only. Keep delivery to the skill's required single line.";
-                return
-                    "claude://cowork/new?q=" + Uri.EscapeDataString(prompt) +
-                    "&folder=" + Uri.EscapeDataString(appFolder);
-            }
-
-            string openAiPrompt =
-                "Switch this task to Work mode and GPT-5.6 Terra. " +
-                "Use $make-cued-deck to prepare a Cued deck. " +
-                "Ask what I am preparing for if needed. " +
-                "Save the validated deck in " + decksFolder + ". " +
-                "Then use authorised Windows desktop control to open " +
-                System.IO.Path.Combine(appFolder, "Cued.exe") + " with the deck path.";
-            return
-                "codex://threads/new?prompt=" + Uri.EscapeDataString(openAiPrompt) +
-                "&path=" + Uri.EscapeDataString(appFolder);
-        }
+        { return CuedShared.ProviderHandoff.Link(useClaude, appFolder); }
 
         private void ChooseDeck()
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Title = "Open Cued deck";
-            dialog.Filter = "Cued decks (*.cued.json)|*.cued.json|Legacy cue decks (*.cue.json)|*.cue.json|JSON files (*.json)|*.json|All files (*.*)|*.*";
+            dialog.Filter = "Cued decks (*.cued.json)|*.cued.json|All files (*.*)|*.*";
             dialog.Multiselect = false;
             if (dialog.ShowDialog(this) == true) LoadDeck(dialog.FileName);
         }
@@ -709,17 +706,8 @@ namespace Cued
         {
             try
             {
-                string json = File.ReadAllText(path);
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                serializer.MaxJsonLength = 1024 * 1024;
-                CueDeck parsed = serializer.Deserialize<CueDeck>(json);
-                string validationError = ValidateDeck(parsed);
-                if (validationError != null)
-                {
-                    MessageBox.Show(this, validationError, "Invalid cue deck", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
+                CueDeck parsed = DeckLoader.Load(path);
+                ResetTransition();
                 SetGhostMode(false);
                 _settingsPanel.Visibility = Visibility.Collapsed;
                 _deck = parsed;
@@ -738,62 +726,11 @@ namespace Cued
             }
         }
 
-        private string ValidateDeck(CueDeck deck)
-        {
-            if (deck == null) return "The file does not contain a cue deck.";
-            if (deck.schemaVersion != 2) return "Unsupported schemaVersion. Cued accepts version 2.";
-            if (string.IsNullOrWhiteSpace(deck.title)) return "The deck needs a title.";
-            if (deck.title.Length > 120) return "The deck title must be 120 characters or fewer.";
-            if (deck.cards == null || deck.cards.Count == 0) return "A deck must contain at least one card.";
-
-            HashSet<string> ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (int cardIndex = 0; cardIndex < deck.cards.Count; cardIndex++)
-            {
-                CueCard card = deck.cards[cardIndex];
-                int cardNumber = cardIndex + 1;
-                if (card == null || string.IsNullOrWhiteSpace(card.id)) return "Card " + cardNumber + " needs an id.";
-                if (!Regex.IsMatch(card.id, "^[a-z0-9]+(?:-[a-z0-9]+)*$")) return "Card " + cardNumber + " needs a kebab-case id.";
-                if (!ids.Add(card.id)) return "Card ids must be unique.";
-                if (string.IsNullOrWhiteSpace(card.title)) return "Card " + cardNumber + " needs a title.";
-                if (CountWords(card.title) > 6) return "Card " + cardNumber + " has a title longer than six words.";
-                if (card.blocks == null || card.blocks.Count != 3) return "Card " + cardNumber + " must contain exactly three heading blocks.";
-
-                int totalWords = 0;
-                for (int blockIndex = 0; blockIndex < card.blocks.Count; blockIndex++)
-                {
-                    CueBlock block = card.blocks[blockIndex];
-                    int blockNumber = blockIndex + 1;
-                    if (block == null || string.IsNullOrWhiteSpace(block.heading)) return "Card " + cardNumber + ", heading " + blockNumber + " needs a title.";
-                    if (block.heading.Length > 100) return "Card " + cardNumber + ", heading " + blockNumber + " is longer than 100 characters.";
-                    if (block.bullets == null || block.bullets.Count < 1 || block.bullets.Count > 3) return "Card " + cardNumber + ", heading " + blockNumber + " must contain one to three bullets.";
-
-                    HashSet<string> bulletsSeen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    List<string> bullets = block.bullets;
-                    for (int bulletIndex = 0; bulletIndex < bullets.Count; bulletIndex++)
-                    {
-                        string bullet = bullets[bulletIndex];
-                        if (string.IsNullOrWhiteSpace(bullet)) return "Card " + cardNumber + " contains an empty bullet.";
-                        if (!bulletsSeen.Add(bullet.Trim())) return "Card " + cardNumber + ", heading " + blockNumber + " contains a duplicate bullet.";
-                        int bulletWords = CountWords(bullet);
-                        if (bulletWords > 12) return "Card " + cardNumber + " contains a bullet longer than 12 words.";
-                        totalWords += bulletWords;
-                    }
-                }
-                if (totalWords > 60) return "Card " + cardNumber + " contains more than 60 cue words.";
-            }
-            return null;
-        }
-
-        private static int CountWords(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value)) return 0;
-            return Regex.Matches(value, "[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*").Count;
-        }
-
         private void RenderCard()
         {
             if (_deck == null || _deck.cards == null || _deck.cards.Count == 0) return;
             CueCard card = _deck.cards[_currentIndex];
+            _cueScroll.ScrollToTop();
             _cardTitle.Text = card.title;
             _sectionsPanel.Children.Clear();
 
@@ -804,6 +741,7 @@ namespace Cued
 
                 TextBlock heading = new TextBlock();
                 heading.Text = block.heading;
+                heading.TextWrapping = TextWrapping.Wrap;
                 heading.FontSize = Math.Max(16, _cueTextSize - 1);
                 heading.FontWeight = FontWeights.SemiBold;
                 heading.Margin = new Thickness(0, 0, 0, 7);
@@ -850,7 +788,7 @@ namespace Cued
 
         private void Advance()
         {
-            if (_deck == null) return;
+            if (_deck == null || _isTransitioning) return;
             if (_currentIndex >= _deck.cards.Count - 1)
             {
                 ShowLanding();
@@ -873,6 +811,7 @@ namespace Cued
                 return;
             }
 
+            int generation = _transitionGeneration;
             _isTransitioning = true;
             _dropButton.IsEnabled = false;
             Duration outDuration = new Duration(TimeSpan.FromMilliseconds(125));
@@ -881,6 +820,7 @@ namespace Cued
             DoubleAnimation fadeOut = new DoubleAnimation(1, 0, outDuration) { EasingFunction = easeIn };
             fadeOut.Completed += delegate
             {
+                if (generation != _transitionGeneration) return;
                 _currentIndex = bounded;
                 RenderCard();
                 _cardTranslate.BeginAnimation(TranslateTransform.YProperty, null);
@@ -894,6 +834,7 @@ namespace Cued
                 DoubleAnimation fadeIn = new DoubleAnimation(0.25, 1, inDuration) { EasingFunction = easeOut };
                 fadeIn.Completed += delegate
                 {
+                    if (generation != _transitionGeneration) return;
                     _cardTranslate.BeginAnimation(TranslateTransform.YProperty, null);
                     _cardSurface.BeginAnimation(UIElement.OpacityProperty, null);
                     _cardTranslate.Y = 0;
@@ -909,8 +850,18 @@ namespace Cued
             _cardSurface.BeginAnimation(UIElement.OpacityProperty, fadeOut);
         }
 
+        private void ResetTransition()
+        {
+            _transitionGeneration++;
+            _cardTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+            _cardSurface.BeginAnimation(UIElement.OpacityProperty, null);
+            _cardTranslate.Y = 0; _cardSurface.Opacity = 1;
+            _isTransitioning = false; _dropButton.IsEnabled = true;
+        }
+
         private void ShowLanding()
         {
+            ResetTransition();
             SetGhostMode(false);
             _deck = null;
             _currentIndex = 0;
@@ -965,22 +916,18 @@ namespace Cued
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs args)
         {
-            if (_deck == null) return;
-            if (args.Key == Key.Space && !(Keyboard.FocusedElement is Slider))
-            {
-                Advance();
-                args.Handled = true;
-            }
+            if (args.Key == Key.O && Keyboard.Modifiers == ModifierKeys.Control)
+            { ChooseDeck(); args.Handled = true; return; }
+            if (args.Key == Key.Escape && _settingsPanel.Visibility == Visibility.Visible)
+            { _settingsPanel.Visibility = Visibility.Collapsed; args.Handled = true; return; }
+            if (_deck == null || Keyboard.FocusedElement is Slider || Keyboard.FocusedElement is TextBox) return;
+            if (args.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.Control && _hotkeyRegistered) return;
+            if (args.Key == Key.Space && (!(Keyboard.FocusedElement is ButtonBase) || Keyboard.FocusedElement == _dropButton))
+            { Advance(); args.Handled = true; }
             else if (args.Key == Key.Left)
-            {
-                MoveTo(_currentIndex - 1, false);
-                args.Handled = true;
-            }
+            { MoveTo(_currentIndex - 1, false); args.Handled = true; }
             else if (args.Key == Key.Right)
-            {
-                MoveTo(_currentIndex + 1, false);
-                args.Handled = true;
-            }
+            { Advance(); args.Handled = true; }
         }
 
         private void OnDragOver(object sender, DragEventArgs args)
@@ -1002,7 +949,12 @@ namespace Cued
 
         private void OnLoaded(object sender, RoutedEventArgs args)
         {
-            if (_startupArgs.Length > 0 && File.Exists(_startupArgs[0])) LoadDeck(_startupArgs[0]);
+            Rect area = SystemParameters.WorkArea;
+            MinWidth = Math.Min(420, area.Width); MinHeight = Math.Min(620, area.Height);
+            Width = Math.Min(_preferences.Width, area.Width); Height = Math.Min(_preferences.Height, area.Height);
+            Left = double.IsNaN(_preferences.Left) || double.IsInfinity(_preferences.Left) ? area.Left + (area.Width - Width) / 2 : Math.Max(area.Left, Math.Min(_preferences.Left, area.Right - Width));
+            Top = double.IsNaN(_preferences.Top) || double.IsInfinity(_preferences.Top) ? area.Top + (area.Height - Height) / 2 : Math.Max(area.Top, Math.Min(_preferences.Top, area.Bottom - Height));
+            if (_startupArgs.Length > 0) LoadDeck(_startupArgs[0]);
         }
 
         private void OnSourceInitialized(object sender, EventArgs args)
@@ -1015,6 +967,13 @@ namespace Cued
 
         private void OnClosed(object sender, EventArgs args)
         {
+            _preferences.TextSize = _cueTextSize; _preferences.GhostOpacity = _ghostTextOpacity;
+            _preferences.ReducedMotion = _reducedMotionCheck.IsChecked == true;
+            Rect bounds = RestoreBounds;
+            _preferences.Left = bounds.Left; _preferences.Top = bounds.Top;
+            _preferences.Width = bounds.Width; _preferences.Height = bounds.Height;
+            _preferences.Save();
+            ResetTransition();
             IntPtr handle = new WindowInteropHelper(this).Handle;
             if (_hotkeyRegistered) UnregisterHotKey(handle, HOTKEY_ID);
             if (_source != null) _source.RemoveHook(WndProc);
@@ -1047,6 +1006,7 @@ namespace Cued
                     bool interactive = IsPointInside(_topBar, point)
                         || IsPointInside(_dropButton, point)
                         || IsPointInside(_backButton, point)
+                        || (_cueScroll.ScrollableHeight > 0 && IsPointInside(_cueScroll, point))
                         || (_deck == null && IsPointInside(_landing, point))
                         || (_settingsPanel.Visibility == Visibility.Visible && IsPointInside(_settingsPanel, point));
                     handled = true;

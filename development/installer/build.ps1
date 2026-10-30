@@ -31,7 +31,8 @@ if (-not (Test-Path -LiteralPath $icon)) {
     /reference:"$(Join-Path $framework 'System.Core.dll')" `
     /reference:"$(Join-Path $framework 'System.Drawing.dll')" `
     /reference:"$(Join-Path $framework 'System.Windows.Forms.dll')" `
-    $source
+    $source `
+    (Join-Path $root '..\common\ProviderHandoff.cs')
 
 if ($LASTEXITCODE -ne 0) {
     throw "Compilation failed with exit code $LASTEXITCODE"

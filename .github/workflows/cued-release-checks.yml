@@ -1,0 +1,100 @@
+name: Cued release checks
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['release/1.1.0-*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cued-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Canonical fixture checks
+        run: python -B tests/test_contract.py
+      - name: Build Windows player and installer
+        shell: powershell
+        run: |
+          & development/app/build.ps1
+          & development/installer/build.ps1
+      - name: Fixture parity and player state
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\cued-windows-evidence" | Out-Null
+          & tests/windows/run-fixtures.ps1 -Output "$env:RUNNER_TEMP\cued-windows-evidence\windows-fixtures.json"
+          & tests/windows/test-player.ps1 -OutputDirectory "$env:RUNNER_TEMP\cued-windows-evidence"
+      - name: Package Windows candidate
+        shell: powershell
+        run: '& development/package.ps1 -OutputDirectory "$env:RUNNER_TEMP\cued-windows-package"'
+      - name: Upload Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cued-Windows-x64-evidence
+          path: ${{ runner.temp }}/cued-windows-evidence
+          if-no-files-found: warn
+      - name: Upload Windows candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: cued-Windows-x64-candidate
+          path: ${{ runner.temp }}/cued-windows-package
+          if-no-files-found: error
+  macos:
+    name: macOS ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm native architecture
+        run: test "$(uname -m)" = '${{ matrix.arch }}'
+      - name: Shared fixtures and session tests
+        run: bash macos/scripts/test.sh "$RUNNER_TEMP/cued-evidence"
+      - name: Build application bundle
+        run: bash macos/scripts/build.sh '${{ matrix.arch }}' "$RUNNER_TEMP/cued-native" 2>&1 | tee "$RUNNER_TEMP/cued-evidence/build.log"
+      - name: Launch packaged app
+        run: bash macos/scripts/smoke.sh "$RUNNER_TEMP/cued-native/Cued.app" "$RUNNER_TEMP/cued-evidence" 2>&1 | tee "$RUNNER_TEMP/cued-evidence/launch.log"
+      - name: Package unnotarized test build
+        run: bash macos/scripts/package.sh '${{ matrix.arch }}' "$RUNNER_TEMP/cued-native/Cued.app" "$RUNNER_TEMP/cued-packages"
+      - name: Extract final archive and verify contents
+        run: |
+          mkdir -p "$RUNNER_TEMP/cued-extracted"
+          ditto -x -k "$RUNNER_TEMP/cued-packages/Cued-1.1.0-rc.1-macOS-${{ matrix.arch }}-unnotarized-test.zip" "$RUNNER_TEMP/cued-extracted"
+          cd "$RUNNER_TEMP/cued-extracted/Cued-1.1.0-rc.1-macOS-${{ matrix.arch }}-unnotarized-test"
+          shasum -a 256 -c SHA256SUMS.txt
+          codesign --verify --deep --strict --verbose=2 Cued.app
+          bash "$GITHUB_WORKSPACE/macos/scripts/smoke.sh" "$PWD/Cued.app" "$RUNNER_TEMP/cued-evidence/extracted-archive"
+      - name: Upload Mac evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cued-macOS-${{ matrix.arch }}-evidence
+          path: ${{ runner.temp }}/cued-evidence
+          if-no-files-found: warn
+      - name: Upload unnotarized Mac package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cued-macOS-${{ matrix.arch }}-unnotarized-test
+          path: |
+            ${{ runner.temp }}/cued-packages/*.zip
+            ${{ runner.temp }}/cued-packages/*.sha256
+          if-no-files-found: error

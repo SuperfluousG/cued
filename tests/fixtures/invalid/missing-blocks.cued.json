@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "title": "Small deck",
+  "cards": [
+    {
+      "id": "first-card",
+      "title": "First card"
+    }
+  ]
+}

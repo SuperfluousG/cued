@@ -35,7 +35,10 @@ if (-not (Test-Path -LiteralPath $icon)) {
     /reference:"$(Join-Path $framework 'System.Web.Extensions.dll')" `
     /reference:"$(Join-Path $framework 'System.dll')" `
     /reference:"$(Join-Path $framework 'System.Core.dll')" `
-    $source
+    $source `
+    (Join-Path $root 'DeckLoader.cs') `
+    (Join-Path $root 'PlayerSettings.cs') `
+    (Join-Path $root '..\common\ProviderHandoff.cs')
 
 if ($LASTEXITCODE -ne 0) {
     throw "Compilation failed with exit code $LASTEXITCODE"

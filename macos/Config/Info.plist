@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key><string>dev.cued.player</string>
+    <key>CFBundleName</key><string>Cued</string>
+    <key>CFBundleDisplayName</key><string>Cued</string>
+    <key>CFBundleExecutable</key><string>Cued</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>1.1.0</string>
+    <key>CFBundleVersion</key><string>1101</string>
+    <key>CFBundleIconFile</key><string>Cued</string>
+    <key>LSMinimumSystemVersion</key><string>13.0</string>
+    <key>NSHighResolutionCapable</key><true/>
+    <key>NSPrincipalClass</key><string>NSApplication</string>
+    <key>NSHumanReadableCopyright</key><string>Cued. Existing ownership and licence position retained.</string>
+    <key>CFBundleDocumentTypes</key>
+    <array><dict>
+        <key>CFBundleTypeName</key><string>Cued speaking-card deck</string>
+        <key>CFBundleTypeRole</key><string>Viewer</string>
+        <key>LSHandlerRank</key><string>Alternate</string>
+        <key>LSItemContentTypes</key><array><string>dev.cued.deck</string></array>
+        <key>CFBundleTypeExtensions</key><array><string>cued.json</string></array>
+    </dict></array>
+    <key>UTImportedTypeDeclarations</key>
+    <array><dict>
+        <key>UTTypeIdentifier</key><string>dev.cued.deck</string>
+        <key>UTTypeDescription</key><string>Cued speaking-card deck</string>
+        <key>UTTypeConformsTo</key><array><string>public.json</string></array>
+        <key>UTTypeTagSpecification</key><dict>
+            <key>public.filename-extension</key><array><string>cued.json</string></array>
+            <key>public.mime-type</key><string>application/vnd.cued.deck+json</string>
+        </dict>
+    </dict></array>
+</dict>
+</plist>

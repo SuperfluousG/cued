@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -9,8 +9,8 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Cued Setup")]
 [assembly: AssemblyProduct("Cued")]
 [assembly: AssemblyDescription("Installs the Cued speaking-card player")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 namespace CuedSetup
 {
@@ -258,6 +258,8 @@ namespace CuedSetup
 
             try
             {
+                if (string.Equals(Path.GetFullPath(appSource).TrimEnd(Path.DirectorySeparatorChar), destination.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("Choose a separate installation folder, not the package's app folder.");
                 Directory.CreateDirectory(destination);
                 CopyDirectory(appSource, destination);
 
@@ -269,6 +271,11 @@ namespace CuedSetup
                     installedClaudeZip,
                     true);
 
+                Directory.CreateDirectory(Path.Combine(destination, "Decks"));
+                File.WriteAllText(Path.Combine(destination, "Create a Cued deck.txt"),
+                    "Install the included skill in your AI tool first. Copy the prompt below, review it and send it yourself. A link does not install a skill or send a request.\r\n\r\n" + CuedShared.ProviderHandoff.Prompt(destination));
+                string guide = Path.Combine(_packageRoot, "QUICK-START.md");
+                if (File.Exists(guide)) File.Copy(guide, Path.Combine(destination, "QUICK-START.md"), true);
                 string installedExe = Path.Combine(destination, "Cued.exe");
                 string chatGptLink = BuildChatGptLink(destination);
 
@@ -359,16 +366,7 @@ namespace CuedSetup
 
         private static string BuildChatGptLink(string appFolder)
         {
-            string prompt =
-                "Switch this task to Work mode and GPT-5.6 Terra. " +
-                "Use $make-cued-deck to prepare Cued speaking cards. " +
-                "Ask what I am preparing for if needed. " +
-                "Save the validated deck in " + Path.Combine(appFolder, "Decks") + ". " +
-                "Then use authorised Windows desktop control to open " +
-                Path.Combine(appFolder, "Cued.exe") + " with the deck path.";
-            return
-                "codex://threads/new?prompt=" + Uri.EscapeDataString(prompt) +
-                "&path=" + Uri.EscapeDataString(appFolder);
+            return CuedShared.ProviderHandoff.Link(false, appFolder);
         }
 
         private static void OpenLink(string value)

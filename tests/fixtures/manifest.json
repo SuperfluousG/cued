@@ -1,0 +1,279 @@
+{
+  "cases": [
+    {
+      "file": "valid/sample.cued.json",
+      "valid": true,
+      "warnings": 0
+    },
+    {
+      "file": "valid/minimum.cued.json",
+      "valid": true,
+      "warnings": 3
+    },
+    {
+      "file": "valid/maximum.cued.json",
+      "valid": true,
+      "warnings": 6
+    },
+    {
+      "file": "valid/paths with spaces/Caf\u00e9 \u6771\u4eac.cued.json",
+      "valid": true,
+      "warnings": 2
+    },
+    {
+      "file": "valid/numeric-schema.cued.json",
+      "valid": true,
+      "warnings": 3
+    },
+    {
+      "file": "valid/unicode-length-boundaries.cued.json",
+      "valid": true,
+      "warnings": 3
+    },
+    {
+      "file": "valid/unicode-distinct.cued.json",
+      "valid": true,
+      "warnings": 4
+    },
+    {
+      "file": "invalid/schema-string.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/schema-bool.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/schema-wrong.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/schema-null.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/root-title-number.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/root-title-empty.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/root-title-long.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/cards-empty.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/cards-object.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/card-null.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/id-uppercase.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/id-trailing-newline.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/id-number.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/title-seven-words.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/card-title-long.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/card-title-empty.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/blocks-two.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/blocks-four.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/block-null.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/heading-empty.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/heading-long.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/heading-number.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullets-empty.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullets-four.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullets-string.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullet-null.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullet-number.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullet-empty.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullet-thirteen-words.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/bullet-long.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/duplicate-bullets.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/unicode-casefold-duplicate.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/unicode-sigma-duplicate.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/unicode16-duplicate.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/root-extra.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/card-extra.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/block-extra.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/duplicate-ids.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/sixty-one-cue-words.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/root-array.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/wrong-extension.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/truncated.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/trailing-comma.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/duplicate-json-keys.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/nonfinite.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/unquoted-key.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/utf8-bom.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/invalid-utf8.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/unpaired-surrogate.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/number-overflow.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/leading-zero.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/trailing-content.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/nesting-limit.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-schema.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-title.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-cards.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-card-id.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-blocks.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-heading.cued.json",
+      "valid": false
+    },
+    {
+      "file": "invalid/missing-bullets.cued.json",
+      "valid": false
+    }
+  ]
+}

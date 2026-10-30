@@ -9,3 +9,6 @@
 *.ico binary
 *.skill binary
 *.zip binary
+*.sh text eol=lf
+*.swift text eol=lf
+*.py text eol=lf
