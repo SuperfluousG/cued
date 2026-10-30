@@ -91,9 +91,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             controller.open(sample, showError: false)
             checks["bundledExample"] = controller.session.deck?.cards.count == 4
             checks["firstCard"] = controller.session.index == 0
+            checks["initialCardStartsAtTop"] = controller.isShowingStartOfCard
             try controller.writeRenderCapture(to: directory.appendingPathComponent("macos-packaged-first-card.png"))
             controller.next(); checks["next"] = controller.session.index == 1
             controller.back(); checks["back"] = controller.session.index == 0
+            checks["focusedButtonSpaceDoesNotAdvance"] = controller.checkFocusedButtonSpace()
             if let fixtureDirectory = value(after: "--fixtures") {
                 let manifest = URL(fileURLWithPath: fixtureDirectory).appendingPathComponent("manifest.json")
                 let data = try Data(contentsOf: manifest)
@@ -108,6 +110,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             controller.setGhost(false)
             for _ in 0..<12 { controller.largerText() }
             controller.window?.setContentSize(NSSize(width: 420, height: 480))
+            controller.render()
+            checks["enlargedCardStartsAtTop"] = controller.isShowingStartOfCard
             try controller.writeRenderCapture(to: directory.appendingPathComponent("macos-packaged-large-text.png"))
             for _ in 0..<4 { controller.next() }
             checks["finishReturnsToLanding"] = controller.session.deck == nil

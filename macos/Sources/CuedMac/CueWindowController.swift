@@ -98,7 +98,7 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
         body.alignment = .leading
         body.spacing = 9
         body.translatesAutoresizingMaskIntoConstraints = false
-        let document = NSView()
+        let document = CueDocumentView()
         document.translatesAutoresizingMaskIntoConstraints = false
         document.addSubview(body)
         scroll.documentView = document
@@ -215,7 +215,33 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
     }
     private func resetScroll() {
         surface.layoutSubtreeIfNeeded()
-        if let document = scroll.documentView { document.scroll(NSPoint(x: 0, y: max(0, document.bounds.height - scroll.contentSize.height))) }
+        scroll.documentView?.scroll(.zero)
+        scroll.reflectScrolledClipView(scroll.contentView)
+    }
+
+    var isShowingStartOfCard: Bool {
+        guard let first = body.arrangedSubviews.first else { return true }
+        let firstFrame = first.convert(first.bounds, to: scroll.contentView)
+        return abs(scroll.contentView.bounds.minY) < 1 && firstFrame.maxY > 0 && firstFrame.minY < 24
+    }
+
+    func checkFocusedButtonSpace() -> Bool {
+        guard let window, window.makeFirstResponder(ghostButton) else { return false }
+        let beforeIndex = session.index
+        let beforeGhost = ghost
+        guard let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0,
+                                          windowNumber: window.windowNumber, context: nil, characters: " ",
+                                          charactersIgnoringModifiers: " ", isARepeat: false, keyCode: 49) else { return false }
+        if let released = NSEvent.keyEvent(with: .keyUp, location: .zero, modifierFlags: [], timestamp: 0.01,
+                                          windowNumber: window.windowNumber, context: nil, characters: " ",
+                                          charactersIgnoringModifiers: " ", isARepeat: false, keyCode: 49) {
+            NSApp.postEvent(released, atStart: false)
+        }
+        window.sendEvent(event)
+        let passed = session.index == beforeIndex && ghost != beforeGhost
+        setGhost(beforeGhost)
+        window.makeFirstResponder(window.contentView)
+        return passed
     }
 
     var creationPrompt: String {

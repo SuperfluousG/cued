@@ -1,6 +1,10 @@
 import AppKit
 import CuedCore
 
+final class CueDocumentView: NSView {
+    override var isFlipped: Bool { true }
+}
+
 final class CueView: NSView {
     var onDrop: ((URL) -> Void)?
     var ghost = false { didSet { needsDisplay = true } }
@@ -40,6 +44,12 @@ final class CueWindow: NSWindow {
 
     override func sendEvent(_ event: NSEvent) {
         let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        // Space activates the focused native control. The playback shortcut is
+        // only used when focus is on the card/window itself.
+        if event.type == .keyDown && event.keyCode == 49 && firstResponder is NSControl {
+            super.sendEvent(event)
+            return
+        }
         if event.type == .keyDown, attachedSheet == nil,
            modifiers.intersection([.command, .control, .option]).isEmpty,
            !(firstResponder is NSTextView), [49, 123, 124].contains(event.keyCode) {

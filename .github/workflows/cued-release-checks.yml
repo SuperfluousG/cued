@@ -82,6 +82,11 @@ jobs:
           cd "$RUNNER_TEMP/cued-extracted/Cued-1.1.0-rc.1-macOS-${{ matrix.arch }}-unnotarized-test"
           shasum -a 256 -c SHA256SUMS.txt
           codesign --verify --deep --strict --verbose=2 Cued.app
+          # Remove SwiftPM's build tree from the generated resource accessor's
+          # fallback location. A clean user's app cannot depend on that tree.
+          test ! -e "$RUNNER_TEMP/cued-build-withheld"
+          mv "$GITHUB_WORKSPACE/macos/.build" "$RUNNER_TEMP/cued-build-withheld"
+          trap 'mv "$RUNNER_TEMP/cued-build-withheld" "$GITHUB_WORKSPACE/macos/.build"' EXIT
           bash "$GITHUB_WORKSPACE/macos/scripts/smoke.sh" "$PWD/Cued.app" "$RUNNER_TEMP/cued-evidence/extracted-archive"
       - name: Upload Mac evidence
         if: always()
