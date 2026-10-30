@@ -37,7 +37,7 @@ bash macos/scripts/smoke.sh macos/out/native/Cued.app macos/out/evidence
 bash macos/scripts/package.sh "$(uname -m)" macos/out/native/Cued.app macos/out/packages
 ```
 
-Build scripts refuse to overwrite existing bundles. Use a new output directory for a subsequent build. They copy the shared Unicode fixture resource before SwiftPM builds. `test.sh` records OS, architecture, Swift, Xcode and SDK versions. CI builds and executes separately on native Intel and arm64 runners; a universal build is not substituted for that evidence.
+Build scripts refuse to overwrite existing bundles. Use a new output directory for a subsequent build. They copy the shared Unicode fixture resource directly into the app and strip local/debug symbols before signing. A package audit rejects developer paths and build-only material. Tests read the same Unicode table through an explicit test input; release code has no source-directory resource fallback. `test.sh` records OS, architecture, Swift, Xcode and SDK versions. CI builds and executes separately on native Intel and arm64 runners; a universal build is not substituted for that evidence.
 
 `smoke.sh` uses Launch Services to start the packaged `.app` and exercises its actual AppKit view and session programmatically. Its PNG files capture the app’s displayed view. This is CI evidence, not a human-operated desktop journey. The following still require actual Mac interaction: Finder Open With, file drop, physical keyboard traversal/focus, floating behaviour beside another app, normal/enlarged Retina and non-Retina-equivalent display checks, close/reopen, copied prompt inspection, and downloaded distribution under Gatekeeper.
 
