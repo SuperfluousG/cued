@@ -172,6 +172,7 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
         // Preserve input handling and readable control surfaces in both modes.
         window?.hasShadow = !value
         body.alphaValue = value ? 0.94 : 1
+        applyGhostTextShadow()
     }
     @objc func smallerText() { changeTextSize(-1) }
     @objc func largerText() { changeTextSize(1) }
@@ -193,6 +194,7 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
             add(button("Try the four-card example", action: #selector(openExample), help: "Open the included four-card example"))
             add(button("Create a deck with your AI tool…", action: #selector(createDeck), help: "Copy a prepared deck creation prompt"))
             add(cueLabel("Space or →: next · ←: back\nDrag the title bar to move. Drag an edge to resize.", size: 13, muted: true))
+            applyGhostTextShadow()
             resetScroll()
             return
         }
@@ -207,7 +209,22 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
             add(cueLabel(block.heading, size: max(16, textSize - 1), weight: .semibold))
             for bullet in block.bullets { add(cueLabel("•  " + bullet, size: textSize)) }
         }
+        applyGhostTextShadow()
         resetScroll()
+    }
+
+    private func applyGhostTextShadow() {
+        let fields = [titleLabel, position] + body.arrangedSubviews.compactMap { $0 as? NSTextField }
+        for field in fields {
+            field.wantsLayer = true
+            if ghost {
+                let shadow = NSShadow()
+                shadow.shadowColor = .black
+                shadow.shadowBlurRadius = 3
+                shadow.shadowOffset = NSSize(width: 0, height: -1)
+                field.shadow = shadow
+            } else { field.shadow = nil }
+        }
     }
 
     private func add(_ view: NSView) {
