@@ -91,6 +91,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             controller.open(sample, showError: false)
             checks["bundledExample"] = controller.session.deck?.cards.count == 4
             checks["firstCard"] = controller.session.index == 0
+            checks["loadedCardHasKeyboardFocus"] = controller.cardHasKeyboardFocus
+            checks["localSpaceAndLeftArrow"] = controller.checkCardKeyboardNavigation()
             checks["initialCardStartsAtTop"] = controller.isShowingStartOfCard
             try controller.writeRenderCapture(to: directory.appendingPathComponent("macos-packaged-first-card.png"))
             controller.next(); checks["next"] = controller.session.index == 1

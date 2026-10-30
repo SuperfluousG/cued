@@ -32,5 +32,5 @@ git -C "$REPO_ROOT" rev-parse HEAD > "$STAGE/SOURCE-COMMIT.txt"
   find . -type f ! -name SHA256SUMS.txt -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256 > SHA256SUMS.txt
 )
 ditto -c -k --sequesterRsrc --keepParent "$STAGE" "$OUTPUT/$NAME.zip"
-shasum -a 256 "$OUTPUT/$NAME.zip" > "$OUTPUT/$NAME.zip.sha256"
+(cd "$OUTPUT" && shasum -a 256 "$NAME.zip" > "$NAME.zip.sha256")
 printf '%s\n' "$OUTPUT/$NAME.zip"

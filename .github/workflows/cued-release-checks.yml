@@ -35,6 +35,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\cued-windows-evidence" | Out-Null
           & tests/windows/run-fixtures.ps1 -Output "$env:RUNNER_TEMP\cued-windows-evidence\windows-fixtures.json"
           & tests/windows/test-player.ps1 -OutputDirectory "$env:RUNNER_TEMP\cued-windows-evidence"
+          & tests/windows/test-installer.ps1 -OutputDirectory "$env:RUNNER_TEMP\cued-windows-evidence"
       - name: Package Windows candidate
         shell: powershell
         run: '& development/package.ps1 -OutputDirectory "$env:RUNNER_TEMP\cued-windows-package"'

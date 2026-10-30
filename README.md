@@ -26,7 +26,7 @@ On a real Mac with Xcode command-line tools and Swift 5.9 or later:
 ```sh
 bash macos/scripts/test.sh
 bash macos/scripts/build.sh "$(uname -m)"
-bash macos/scripts/package.sh "$(uname -m)"
+bash macos/scripts/package.sh "$(uname -m)" "macos/out/$(uname -m)/Cued.app" macos/out/packages
 ```
 
 Use the Mac guide and workflow for exact arguments and artifact locations. The support target is macOS 13. CI must run separately on Intel and Apple silicon; a successful source check on Windows is not Mac execution evidence. End users do not need developer tools for packaged playback.

@@ -258,8 +258,7 @@ namespace CuedSetup
 
             try
             {
-                if (string.Equals(Path.GetFullPath(appSource).TrimEnd(Path.DirectorySeparatorChar), destination.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("Choose a separate installation folder, not the package's app folder.");
+                EnsureSeparateDestination(appSource, destination);
                 Directory.CreateDirectory(destination);
                 CopyDirectory(appSource, destination);
 
@@ -348,6 +347,7 @@ namespace CuedSetup
 
         private static void CopyDirectory(string source, string destination)
         {
+            EnsureSeparateDestination(source, destination);
             Directory.CreateDirectory(destination);
             foreach (string file in Directory.GetFiles(source))
             {
@@ -362,6 +362,15 @@ namespace CuedSetup
                 if (name.Equals("__pycache__", StringComparison.OrdinalIgnoreCase)) continue;
                 CopyDirectory(directory, Path.Combine(destination, name));
             }
+        }
+
+        private static void EnsureSeparateDestination(string source, string destination)
+        {
+            string sourcePath = Path.GetFullPath(source).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string destinationPath = Path.GetFullPath(destination).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (destinationPath.Equals(sourcePath, StringComparison.OrdinalIgnoreCase) ||
+                destinationPath.StartsWith(sourcePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Choose an installation folder outside the setup source folder and its subfolders.");
         }
 
         private static string BuildChatGptLink(string appFolder)

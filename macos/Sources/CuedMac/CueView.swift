@@ -9,6 +9,7 @@ final class CueView: NSView {
     var onDrop: ((URL) -> Void)?
     var ghost = false { didSet { needsDisplay = true } }
     override var isFlipped: Bool { true }
+    override var acceptsFirstResponder: Bool { true }
     override var mouseDownCanMoveWindow: Bool { true }
 
     override init(frame: NSRect) {

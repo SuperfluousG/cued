@@ -131,6 +131,7 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
             setGhost(false)
             render()
             window?.makeKeyAndOrderFront(nil)
+            window?.makeFirstResponder(surface)
             NSApp.activate(ignoringOtherApps: true)
         } catch {
             guard showError else { return }
@@ -223,6 +224,23 @@ final class CueWindowController: NSWindowController, NSWindowDelegate {
         guard let first = body.arrangedSubviews.first else { return true }
         let firstFrame = first.convert(first.bounds, to: scroll.contentView)
         return abs(scroll.contentView.bounds.minY) < 1 && firstFrame.maxY > 0 && firstFrame.minY < 24
+    }
+
+    var cardHasKeyboardFocus: Bool { window?.firstResponder === surface }
+
+    func checkCardKeyboardNavigation() -> Bool {
+        guard let window, cardHasKeyboardFocus, session.deck != nil else { return false }
+        let start = session.index
+        func press(_ key: UInt16, characters: String) {
+            guard let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0,
+                                              windowNumber: window.windowNumber, context: nil, characters: characters,
+                                              charactersIgnoringModifiers: characters, isARepeat: false, keyCode: key) else { return }
+            window.sendEvent(event)
+        }
+        press(49, characters: " ")
+        let advanced = session.index == start + 1
+        press(123, characters: "\u{F702}")
+        return advanced && session.index == start && cardHasKeyboardFocus
     }
 
     func checkFocusedButtonSpace() -> Bool {
