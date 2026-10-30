@@ -69,16 +69,20 @@ public static class PlayerTests
                 Check(Uri.UnescapeDataString(link).Contains(prompt), "provider link preserves prepared prompt: " + claude);
             }
             window.Show(); Pump();
-            window.Left = 60; window.Top = 80; window.Width = 480; window.Height = 680;
+            Rect workArea = SystemParameters.WorkArea;
+            double savedWidth = Math.Min(480, workArea.Width), savedHeight = Math.Min(680, workArea.Height);
+            double savedLeft = workArea.Left + Math.Min(60, workArea.Width - savedWidth);
+            double savedTop = workArea.Top + Math.Min(80, workArea.Height - savedHeight);
+            window.Width = savedWidth; window.Height = savedHeight; window.Left = savedLeft; window.Top = savedTop;
             window.Close();
             string settingsJson = File.ReadAllText(Environment.GetEnvironmentVariable("CUED_SETTINGS_PATH"));
             Check(!settingsJson.Contains("Infinity") && !settingsJson.Contains("NaN"), "normal close persists finite JSON geometry");
             Window reopened = (Window)Activator.CreateInstance(type, new object[] { new string[0] });
             Check(Field<object>(reopened, "_deck") == null, "reopen does not restore an active deck");
             reopened.Show(); Pump();
-            Check(reopened.Left == 60 && reopened.Top == 80 && reopened.Width == 480 && reopened.Height == 680, "reopen restores saved window geometry");
+            Check(Math.Abs(reopened.Left - savedLeft) < 1 && Math.Abs(reopened.Top - savedTop) < 1 && Math.Abs(reopened.Width - savedWidth) < 1 && Math.Abs(reopened.Height - savedHeight) < 1, "reopen restores saved window geometry within the available desktop");
             reopened.Close();
-            Console.WriteLine(new JavaScriptSerializer().Serialize(new { passed = true, checks = results, note = "Programmatic WPF logic tests; not interactive UI acceptance." }));
+            Console.WriteLine(new JavaScriptSerializer().Serialize(new { passed = true, checks = results, workArea = workArea.ToString(), savedGeometry = new[] { savedLeft, savedTop, savedWidth, savedHeight }, note = "Programmatic WPF logic tests; not interactive UI acceptance." }));
             return 0;
         }
         catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
