@@ -40,6 +40,11 @@ namespace Cued
         {
             try
             {
+                // Never persist WPF's unset/closed-window infinities as invalid JSON.
+                Left = Clamp(Left, -100000, 100000, 0);
+                Top = Clamp(Top, -100000, 100000, 0);
+                Width = Clamp(Width, 420, 4000, 520);
+                Height = Clamp(Height, 400, 4000, 790);
                 var path = SettingsPath;
                 Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)));
                 var temporary = path + ".tmp";

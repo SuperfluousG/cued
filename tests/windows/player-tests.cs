@@ -68,9 +68,15 @@ public static class PlayerTests
                 string link = (string)shared.GetMethod("Link").Invoke(null, new object[] { claude, folder });
                 Check(Uri.UnescapeDataString(link).Contains(prompt), "provider link preserves prepared prompt: " + claude);
             }
+            window.Show(); Pump();
+            window.Left = 60; window.Top = 80; window.Width = 480; window.Height = 680;
             window.Close();
+            string settingsJson = File.ReadAllText(Environment.GetEnvironmentVariable("CUED_SETTINGS_PATH"));
+            Check(!settingsJson.Contains("Infinity") && !settingsJson.Contains("NaN"), "normal close persists finite JSON geometry");
             Window reopened = (Window)Activator.CreateInstance(type, new object[] { new string[0] });
             Check(Field<object>(reopened, "_deck") == null, "reopen does not restore an active deck");
+            reopened.Show(); Pump();
+            Check(reopened.Left == 60 && reopened.Top == 80 && reopened.Width == 480 && reopened.Height == 680, "reopen restores saved window geometry");
             reopened.Close();
             Console.WriteLine(new JavaScriptSerializer().Serialize(new { passed = true, checks = results, note = "Programmatic WPF logic tests; not interactive UI acceptance." }));
             return 0;

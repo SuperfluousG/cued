@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -143,6 +144,7 @@ namespace Cued
             BuildInterface();
 
             SourceInitialized += OnSourceInitialized;
+            Closing += OnClosing;
             Closed += OnClosed;
             Loaded += OnLoaded;
             PreviewKeyDown += OnPreviewKeyDown;
@@ -965,14 +967,26 @@ namespace Cued
             _hotkeyRegistered = RegisterHotKey(handle, HOTKEY_ID, MOD_CONTROL, VK_SPACE);
         }
 
-        private void OnClosed(object sender, EventArgs args)
+        private void OnClosing(object sender, CancelEventArgs args)
         {
             _preferences.TextSize = _cueTextSize; _preferences.GhostOpacity = _ghostTextOpacity;
             _preferences.ReducedMotion = _reducedMotionCheck.IsChecked == true;
-            Rect bounds = RestoreBounds;
-            _preferences.Left = bounds.Left; _preferences.Top = bounds.Top;
-            _preferences.Width = bounds.Width; _preferences.Height = bounds.Height;
+            if (WindowState == WindowState.Normal)
+            {
+                _preferences.Left = Left; _preferences.Top = Top;
+                _preferences.Width = Width; _preferences.Height = Height;
+            }
+            else
+            {
+                Rect bounds = RestoreBounds;
+                _preferences.Left = bounds.Left; _preferences.Top = bounds.Top;
+                _preferences.Width = bounds.Width; _preferences.Height = bounds.Height;
+            }
             _preferences.Save();
+        }
+
+        private void OnClosed(object sender, EventArgs args)
+        {
             ResetTransition();
             IntPtr handle = new WindowInteropHelper(this).Handle;
             if (_hotkeyRegistered) UnregisterHotKey(handle, HOTKEY_ID);
