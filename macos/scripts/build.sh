@@ -15,12 +15,16 @@ APP="$OUTPUT/Cued.app"
 if [[ -e "$APP" ]]; then echo "Refusing to overwrite an existing bundle: $APP" >&2; exit 2; fi
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN/Cued" "$APP/Contents/MacOS/Cued"
+# SwiftPM release builds can still contain local/debug symbol-table entries.
+# Strip those before signing so neither object paths nor developer metadata ship.
+xcrun strip -S -x "$APP/Contents/MacOS/Cued"
 cp "$MAC_ROOT/Config/Info.plist" "$APP/Contents/Info.plist"
 cp "$REPO_ROOT/app/sample.cued.json" "$APP/Contents/Resources/sample.cued.json"
 cp "$REPO_ROOT/tests/fixtures/unicode-rules.json" "$APP/Contents/Resources/unicode-rules.json"
 bash "$MAC_ROOT/scripts/icon.sh" "$APP/Contents/Resources/Cued.icns" "$OUTPUT/icon-build"
 chmod +x "$APP/Contents/MacOS/Cued"
 plutil -lint "$APP/Contents/Info.plist"
+python3 "$MAC_ROOT/scripts/audit-bundle.py" "$APP" --source-root "$REPO_ROOT"
 # Ad-hoc signing permits native local testing. It is NOT Developer ID signing
 # or notarization and does not establish normal downloaded-app distribution.
 codesign --force --sign - "$APP"

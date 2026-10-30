@@ -1,4 +1,5 @@
 import XCTest
+import Darwin
 @testable import CuedCore
 
 final class DeckTests: XCTestCase {
@@ -9,6 +10,11 @@ final class DeckTests: XCTestCase {
     var fixtures: URL {
         if let directory = ProcessInfo.processInfo.environment["CUED_FIXTURES"] { return URL(fileURLWithPath: directory) }
         return URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("tests/fixtures")
+    }
+
+    override func setUpWithError() throws {
+        // This explicit test input is only consumed by DEBUG builds of CuedCore.
+        setenv("CUED_UNICODE_RULES", fixtures.appendingPathComponent("unicode-rules.json").path, 1)
     }
 
     func testSharedCorpus() throws {

@@ -74,6 +74,8 @@ jobs:
         run: bash macos/scripts/build.sh '${{ matrix.arch }}' "$RUNNER_TEMP/cued-native" 2>&1 | tee "$RUNNER_TEMP/cued-evidence/build.log"
       - name: Launch packaged app
         run: bash macos/scripts/smoke.sh "$RUNNER_TEMP/cued-native/Cued.app" "$RUNNER_TEMP/cued-evidence" 2>&1 | tee "$RUNNER_TEMP/cued-evidence/launch.log"
+      - name: Offline packaged app with process network denied
+        run: bash macos/scripts/offline-smoke.sh "$RUNNER_TEMP/cued-native/Cued.app" "$RUNNER_TEMP/cued-evidence/offline"
       - name: Package unnotarized test build
         run: bash macos/scripts/package.sh '${{ matrix.arch }}' "$RUNNER_TEMP/cued-native/Cued.app" "$RUNNER_TEMP/cued-packages"
       - name: Extract final archive and verify contents
@@ -83,6 +85,7 @@ jobs:
           cd "$RUNNER_TEMP/cued-extracted/Cued-1.1.0-rc.1-macOS-${{ matrix.arch }}-unnotarized-test"
           shasum -a 256 -c SHA256SUMS.txt
           codesign --verify --deep --strict --verbose=2 Cued.app
+          python3 "$GITHUB_WORKSPACE/macos/scripts/audit-bundle.py" Cued.app --source-root "$GITHUB_WORKSPACE" | tee "$RUNNER_TEMP/cued-evidence/extracted-bundle-audit.json"
           # Remove SwiftPM's build tree from the generated resource accessor's
           # fallback location. A clean user's app cannot depend on that tree.
           test ! -e "$RUNNER_TEMP/cued-build-withheld"

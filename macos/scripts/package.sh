@@ -11,6 +11,7 @@ OUTPUT="$(cd "$OUTPUT" && pwd)"
 NAME="Cued-1.1.0-rc.1-macOS-$ARCH-unnotarized-test"
 STAGE="$OUTPUT/$NAME"
 if [[ -e "$STAGE" ]]; then echo "Refusing to overwrite existing package: $STAGE" >&2; exit 2; fi
+python3 "$MAC_ROOT/scripts/audit-bundle.py" "$APP" --source-root "$REPO_ROOT"
 mkdir -p "$STAGE/Skills"
 cp -R "$APP" "$STAGE/Cued.app"
 cp "$REPO_ROOT/app/sample.cued.json" "$STAGE/sample.cued.json"

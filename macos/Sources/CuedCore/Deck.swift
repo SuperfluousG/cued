@@ -13,14 +13,14 @@ private struct UnicodeRules: Decodable {
     let casefold: [String: String]
     let whitespace: [UInt32]
     static let shared: UnicodeRules? = {
-        // A packaged app must be self-contained. Never let SwiftPM's generated
-        // absolute build-directory fallback conceal a missing shipped resource.
-        let resource: URL?
-        if Bundle.main.bundleURL.pathExtension.lowercased() == "app" {
-            resource = Bundle.main.url(forResource: "unicode-rules", withExtension: "json")
-        } else {
-            resource = Bundle.module.url(forResource: "unicode-rules", withExtension: "json")
+        // The shipped app only reads its own resource. Test-only lookup is
+        // compiled out of release builds and never embeds an absolute source path.
+        var resource = Bundle.main.url(forResource: "unicode-rules", withExtension: "json")
+        #if DEBUG
+        if resource == nil, let path = ProcessInfo.processInfo.environment["CUED_UNICODE_RULES"] {
+            resource = URL(fileURLWithPath: path)
         }
+        #endif
         guard let url = resource,
               let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(UnicodeRules.self, from: data)

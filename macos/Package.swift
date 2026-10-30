@@ -6,7 +6,9 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [.executable(name: "Cued", targets: ["CuedMac"])],
     targets: [
-        .target(name: "CuedCore", resources: [.process("Resources")]),
+        // The release bundle receives its one validation resource explicitly.
+        // Avoid SwiftPM's generated accessor, which embeds the build machine path.
+        .target(name: "CuedCore", exclude: ["Resources"]),
         .executableTarget(name: "CuedMac", dependencies: ["CuedCore"]),
         .testTarget(name: "CuedCoreTests", dependencies: ["CuedCore"])
     ]
