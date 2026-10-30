@@ -26,9 +26,9 @@ Windows also retains the existing Ctrl+Space shortcut to advance while another a
 
 ## Create a deck with your chosen AI tool
 
-Install `make-cued-deck` once using your tool's supported skill installation route. Windows setup can copy the skill to your personal `.agents/skills` directory if you select that option. On Mac, copy the included `source/make-cued-deck` folder to `~/.agents/skills/make-cued-deck` for a host that discovers that directory, then restart or refresh that host. A ZIP attached to a chat is not an installed skill.
+Install `make-cued-deck` once using your tool's supported skill installation route. Windows setup can copy the skill to your personal `.agents/skills` directory if you select that option. On Mac, copy the included `Skills/make-cued-deck` folder to `~/.agents/skills/make-cued-deck` for a host that discovers that directory, then restart or refresh that host. A ZIP attached to a chat is not an installed skill.
 
-For Claude's skill upload route, use `packages/make-cued-deck-claude.zip` without unpacking it. For an OpenAI host supporting local plugin marketplaces, the archive in `packages` contains the Cued skill. Installation options vary by host; use its current skill/plugin interface.
+For Claude's skill upload route, use `make-cued-deck-claude.zip` without unpacking it: this is in `packages` on Windows and `Skills` on Mac. The same folder contains the OpenAI marketplace archive for hosts supporting local plugin marketplaces. Installation options vary by host; use its current skill/plugin interface.
 
 Select a create option in Cued, then **Copy prompt**. Paste it into your chosen tool, review it and send it yourself. A desktop link is an optional convenience; it does not install a skill, select a model or mode, submit a message or guarantee a completed deck. The copied prompt works when a link is unavailable.
 
